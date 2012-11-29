@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = "xtunes tools collections"
   s.authors     = ["xtunes"]
   s.email       = 'com@xtunes.cn'
-  s.files       = Dir["lib/**/*.rb", "recipes/**/*.rb"]
+  s.files       = Dir["lib/**/*.rb", "recipes/**/*.rb", "defaults/*.yaml"]
   s.homepage    =
     'http://rubygems.org/gems/xtunes'
   s.executables << 'xtunes'
