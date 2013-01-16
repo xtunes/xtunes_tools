@@ -1,3 +1,8 @@
+$:.push File.expand_path("../lib", __FILE__)
+
+# Maintain your gem's version:
+require "xtunes_tools/version"
+
 Gem::Specification.new do |s|
   s.name        = 'xtunes_tools'
   s.version     = '0.0.1'
@@ -11,5 +16,5 @@ Gem::Specification.new do |s|
     'http://rubygems.org/gems/xtunes'
   s.executables << 'xtunes'
 
-  s.add_dependency "rails_apps_composer"
+  s.add_dependency "rails_apps_composer" , '~> 2.2.0'
 end

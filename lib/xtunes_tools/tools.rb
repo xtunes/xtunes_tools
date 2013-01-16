@@ -2,9 +2,12 @@ require 'rails_wizard'
 require 'thor'
 require 'find'
 
-Find.find(File.dirname(__FILE__) + '/../recipes') do |path|
-  unless File.file?(path)
-    RailsWizard::Recipes.add_from_directory(path)
+recipes_path = File.expand_path("../../../recipes", __FILE__)
+if File.directory?(recipes_path)
+  Find.find(recipes_path) do |path|
+    unless File.file?(path)
+      RailsWizard::Recipes.add_from_directory(path)
+    end
   end
 end
 
