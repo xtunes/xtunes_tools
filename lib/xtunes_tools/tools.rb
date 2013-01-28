@@ -2,11 +2,15 @@ require 'rails_wizard'
 require 'thor'
 require 'find'
 
-recipes_path = File.expand_path("../../../recipes", __FILE__)
-if File.directory?(recipes_path)
-  Find.find(recipes_path) do |path|
-    unless File.file?(path)
-      RailsWizard::Recipes.add_from_directory(path)
+module RailsWizard
+  module Recipes
+    class << self
+      alias :old_add :add
+      def add(recipe)
+        send(:remove_const, ActiveSupport::Inflector.camelize(recipe.key)) if @@list[recipe.key]
+        @@categories[recipe.category.to_s].delete(recipe.key) if @@categories[recipe.category.to_s]
+        old_add(recipe)
+      end
     end
   end
 end
@@ -20,12 +24,13 @@ class Xtunes < Thor
   method_option :no_default_recipes, :type => :boolean, :aliases => "-L"
   method_option :template_root, :type => :string, :aliases => '-t'
   method_option :quiet, :type => :boolean, :aliases => "-q", :default => false
+  method_option :normal_orm, :type => :boolean, :aliases => "-o", :default => true
   def new(name)
     add_recipes
     recipes, defaults = load_defaults
-    args = ask_for_args(defaults)
-    recipes = ask_for_recipes(recipes)
-    gems = ask_for_gems(defaults)
+    args = options[:normal_orm] ? ['-T'] : ask_for_args(defaults)
+    recipes = options[:defaults] ? ['xtunes_apps'] : ask_for_recipes(recipes)
+    gems = []
     run_template(name, recipes, gems, args, defaults, nil)
   end
 
@@ -71,17 +76,29 @@ class Xtunes < Thor
       if dirs = options[:recipe_dirs]
         dirs.each { |d| Recipes.add_from_directory(d) }
       end
+      recipes_path = File.expand_path("../../../recipes", __FILE__)
+      if File.directory?(recipes_path)
+        Find.find(recipes_path) do |path|
+          unless File.file?(path)
+            RailsWizard::Recipes.add_from_directory(path)
+          end
+        end
+      end
     end
 
     def load_defaults
       # Load defaults from a file; if a file specifies recipes, they'll be run *before*
       # any on the command line (or prompted for)..
-      defaults = if options[:defaults]
-        File.open(options[:defaults]) {|f| YAML.load(f) }
-      else
-        {}
+      defaults = {}
+      if options[:defaults]
+        begin
+          File.open(options[:defaults]) {|f| YAML.load(f) }
+        rescue
+          #RailsWizard::Diagnostics.prefs[:xtunes_apps] = options[:defaults]
+        end
       end
       recipes = defaults.delete('recipes') { [] }
+      recipes ||= ['xtunes_apps']
       [recipes, defaults]
     end
 
