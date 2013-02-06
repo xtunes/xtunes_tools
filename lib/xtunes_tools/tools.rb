@@ -24,11 +24,11 @@ class Xtunes < Thor
   method_option :no_default_recipes, :type => :boolean, :aliases => "-L"
   method_option :template_root, :type => :string, :aliases => '-t'
   method_option :quiet, :type => :boolean, :aliases => "-q", :default => false
-  method_option :normal_orm, :type => :boolean, :aliases => "-o", :default => true
+  method_option :orm, :type => :string, :aliases => "-o"
   def new(name)
     add_recipes
     recipes, defaults = load_defaults
-    args = options[:normal_orm] ? ['-T'] : ask_for_args(defaults)
+    args = options[:orm] ? ['-T','-O'] : ['-T']
     recipes = options[:defaults] ? ['xtunes_apps'] : ask_for_recipes(recipes)
     gems = []
     run_template(name, recipes, gems, args, defaults, nil)
