@@ -1,5 +1,6 @@
 
 gem 'xtunes_helpers', :git => 'git@github.com:xtunes/xtunes_helpers.git'
+gem 'turbo-sprockets-rails3', '~> 0.3.0', :group => :assets
 
 
 after_bundler do
